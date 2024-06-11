@@ -10,4 +10,9 @@ sudo apt install tesseract-ocr
 tesseract -v
 ```
 
+#### Compile the program
+```sh
+go build cmd/main.go
+```
+
 ###### Usage: ./program --passport example_image.jpeg
