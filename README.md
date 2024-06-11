@@ -15,4 +15,4 @@ tesseract -v
 go build cmd/main.go
 ```
 
-###### Usage: ./program --passport example_image.jpeg
+###### Usage: ./program --passport example_image.{jpeg, png, jpg ...}
