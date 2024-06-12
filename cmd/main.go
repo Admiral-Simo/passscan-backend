@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"passport_card_analyser/internal/adapters/core/ocr"
+	"passport_card_analyser/internal/adapters/core/types"
 	"passport_card_analyser/internal/adapters/core/utilities"
 )
 
@@ -18,6 +19,8 @@ func main() {
 		log.Fatalf("Usage: %s --passport example_image.jpeg", os.Args[0])
 	}
 
+	people := []*types.Person{}
+
 	parser := ocr.NewParser()
 	for _, card := range passports {
 		parser.SetImage(card)
@@ -26,8 +29,11 @@ func main() {
 			log.Println(err)
 			continue
 		}
+		people = append(people, person)
+	}
+
+	for _, person := range people {
 		fmt.Println("----------------------")
-		fmt.Printf("%s: ", card)
 		utilities.PrintPerson(person)
 	}
 	fmt.Println("----------------------")
