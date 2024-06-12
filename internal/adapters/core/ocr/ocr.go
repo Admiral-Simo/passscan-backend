@@ -1,8 +1,9 @@
 package ocr
 
 import (
-	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"os/exec"
 	"passport_card_analyser/internal/adapters/core/types"
 	"passport_card_analyser/internal/adapters/core/utilities"
@@ -20,17 +21,22 @@ func NewParser() *Parser {
 }
 
 func (p *Parser) GetContent() error {
-	var result bytes.Buffer
-
-	cmd := exec.Command("tesseract", p.image, "-", "stdout", "--psm", "11")
-	cmd.Stdout = &result
+	cmd := exec.Command("tesseract", p.image, "output", "--psm", "11")
 	err := cmd.Run()
 	if err != nil {
 		return err
 	}
 
-	// execute this command and get the ouput into the result variable
-	p.text = result.String()
+	file, err := os.Open("output.txt")
+
+	out, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	os.Remove("output.txt")
+
+	p.text = string(out)
 	return nil
 }
 
@@ -42,6 +48,7 @@ const (
 )
 
 func (p *Parser) ParseCitizen() (*types.Person, error) {
+	fmt.Println(p.String())
 	re := regexp.MustCompile("[ \n]+")
 
 	parts := re.Split(p.text, -1)
@@ -52,7 +59,7 @@ func (p *Parser) ParseCitizen() (*types.Person, error) {
 
 	for _, word := range parts {
 		// check for CNE
-		if len(word) >= minCNE && len(word) <= maxCNE {
+		if len(word) >= minCNE && len(word) <= maxCNE && utilities.ContainsCNELengthNumbers(word) {
 			person.CNE = word
 		}
 
