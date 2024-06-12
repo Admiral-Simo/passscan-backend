@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"passport_card_analyser/internal/adapters/core/types"
 	"passport_card_analyser/internal/adapters/core/utilities"
-	"regexp"
+	"strings"
 	"time"
 )
 
@@ -43,39 +43,52 @@ func (p *Parser) GetContent() error {
 const (
 	slashLayout = "02/01/2006"
 	dotLayout   = "02.01.2006"
+	spaceLayout = "02 01 2006"
 	minCNE      = 7
 	maxCNE      = 8
 )
 
 func (p *Parser) ParseCitizen() (*types.Person, error) {
 	fmt.Println(p.String())
-	re := regexp.MustCompile("[ \n]+")
 
-	parts := re.Split(p.text, -1)
+	names := []string{}
+
+	lines := strings.Split(p.text, "\n")
 
 	person := &types.Person{}
 
 	var date1, date2 time.Time
 
-	for _, word := range parts {
-		// check for CNE
-		if len(word) >= minCNE && len(word) <= maxCNE && utilities.ContainsCNELengthNumbers(word) {
-			person.CNE = word
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		// check for names
+		if utilities.AllUpper(line) {
+			names = append(names, line)
 		}
 
 		var dateTime time.Time
 		var err error
 
-		// check for dates
-		switch {
-		case utilities.ContainsTwoSlashes(word) && len(word) == 10:
-			dateTime, err = time.Parse(slashLayout, word[:10])
-		case utilities.ContainsTwoDots(word) && len(word) == 10:
-			dateTime, err = time.Parse(dotLayout, word[:10])
+		for _, word := range strings.Split(line, " ") {
+			// check for CNE
+			if len(word) >= minCNE && len(word) <= maxCNE && utilities.ContainsCNELengthNumbers(word) {
+				person.CNE = word
+			}
+
+			// check for dates
+			switch {
+			case utilities.ContainsTwoSlashes(word) && len(word) == 10:
+				dateTime, err = time.Parse(slashLayout, word[:10])
+			case utilities.ContainsTwoDots(word) && len(word) == 10:
+				dateTime, err = time.Parse(dotLayout, word[:10])
+			case utilities.AllDigits(word) && utilities.ContainsTwoSpaces(word) && len(word) == 10:
+				dateTime, err = time.Parse(spaceLayout, word[:10])
+			}
 		}
 
 		if err != nil {
-			return nil, fmt.Errorf("can't parse date %s: %v", word[:10], err)
+			return nil, fmt.Errorf("can't parse date %s: %v", line[:10], err)
 		}
 
 		// Store dates temporarily
@@ -101,6 +114,41 @@ func (p *Parser) ParseCitizen() (*types.Person, error) {
 		person.BirthDate = date1
 	} else if !date2.IsZero() {
 		person.BirthDate = date1
+	}
+
+	utilities.PrintArrayString("names", names)
+
+	for i := 0; i < 3; i++ {
+		j := -1
+		switch i {
+		case 0:
+			// this is the names.FirstName
+			fmt.Print("give me which index you think is the first name: ")
+			fmt.Scan(&j)
+			if j < 0 || j > len(names)-1 {
+				person.FirstName = ""
+				continue
+			}
+			person.FirstName = names[j]
+		case 1:
+			// this is the names.LastName
+			fmt.Print("give me which index you think is the last name: ")
+			fmt.Scan(&j)
+			if j < 0 || j > len(names)-1 {
+				person.LastName = ""
+				continue
+			}
+			person.LastName = names[j]
+		case 2:
+			// this is the names.City
+			fmt.Print("give me which index you think is the city: ")
+			fmt.Scan(&j)
+			if j < 0 || j > len(names)-1 {
+				person.City = ""
+				continue
+			}
+			person.City = names[j]
+		}
 	}
 
 	return person, nil
