@@ -40,6 +40,15 @@ func (p *Parser) GetContent() error {
 	return nil
 }
 
+func (p *Parser) OpenImage() error {
+	cmd := exec.Command("open", p.image)
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 const (
 	slashLayout = "02/01/2006"
 	dotLayout   = "02.01.2006"
@@ -49,8 +58,6 @@ const (
 )
 
 func (p *Parser) ParseCitizen() (*types.Person, error) {
-	fmt.Println(p.String())
-
 	names := []string{}
 
 	lines := strings.Split(p.text, "\n")
@@ -117,6 +124,8 @@ func (p *Parser) ParseCitizen() (*types.Person, error) {
 	}
 
 	utilities.PrintArrayString("names", names)
+
+	p.OpenImage()
 
 	for i := 0; i < 3; i++ {
 		j := -1
