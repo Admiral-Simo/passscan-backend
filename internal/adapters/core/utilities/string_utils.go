@@ -3,6 +3,7 @@ package utilities
 import (
 	"fmt"
 	"passport_card_analyser/internal/adapters/core/types"
+	"unicode"
 )
 
 func ContainsTwoSlashes(s string) bool {
@@ -23,6 +24,16 @@ func ContainsTwoDots(s string) bool {
 		}
 	}
 	return count == 2
+}
+
+func ContainsCNELengthNumbers(s string) bool {
+	count := 0
+	for _, r := range s {
+		if unicode.IsDigit(r) {
+			count++
+		}
+	}
+	return count >= 4
 }
 
 func PrintPerson(person *types.Person) {
