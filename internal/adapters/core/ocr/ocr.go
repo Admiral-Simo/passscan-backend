@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"passport_card_analyser/internal/adapters/core/types"
 	"passport_card_analyser/internal/adapters/core/utilities"
-	"sort"
 	"strings"
 	"time"
 )
@@ -51,77 +50,54 @@ func (p *Parser) OpenImage() error {
 }
 
 const (
-	slashLayout = "02/01/2006"
-	dotLayout   = "02.01.2006"
-	spaceLayout = "02 01 2006"
-	minCNE      = 7
-	maxCNE      = 8
+	minCNE = 7
+	maxCNE = 8
 )
 
 func (p *Parser) ParseCitizen() (*types.Person, []string, error) {
-	names := []string{}
-
 	lines := strings.Split(p.text, "\n")
-
 	person := &types.Person{}
-
 	var dates []time.Time
+	var names []string
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 
-		// check for names
 		if utilities.AllUpper(line) {
 			names = append(names, line)
 		}
 
-		var dateTime time.Time
-		var err error
-
-		for _, word := range strings.Split(line, " ") {
-			// check for CNE
-			if len(word) >= minCNE && len(word) <= maxCNE && utilities.ContainsCNELengthNumbers(word) {
-				person.CNE = word
-			}
-
-			// check for dates
-			switch {
-			case utilities.ContainsTwoSlashes(word) && len(word) == 10:
-				dateTime, err = time.Parse(slashLayout, word[:10])
-			case utilities.ContainsTwoDots(word) && len(word) == 10:
-				dateTime, err = time.Parse(dotLayout, word[:10])
-			case utilities.AllDigits(word) && utilities.ContainsTwoSpaces(word) && len(word) == 10:
-				dateTime, err = time.Parse(spaceLayout, word[:10])
-			}
-		}
-
-		if err != nil {
-			return nil, nil, fmt.Errorf("can't parse date %s: %v", line[:10], err)
-		}
-
-		// Store dates temporarily
-		if !dateTime.IsZero() {
-			dates = append(dates, dateTime)
+		if err := p.parseLine(line, person, &dates); err != nil {
+			return nil, nil, fmt.Errorf("can't parse line %s: %v", line, err)
 		}
 	}
 
-	// sort dates
-	sort.Slice(dates, func(i, j int) bool {
-		return dates[i].Before(dates[j])
-	})
-
-	// assign birth date and expire date
-	if len(dates) == 1 {
-		person.BirthDate = dates[0]
-	} else if len(dates) == 2 {
-		person.BirthDate = dates[0]
-		person.ExpireDate = dates[1]
-	} else if len(dates) == 2 {
-		person.BirthDate = dates[0]
-		person.ExpireDate = dates[2]
-	}
+	utilities.SortDates(dates)
+	utilities.AssignDates(person, dates)
 
 	return person, names, nil
+}
+
+func (p *Parser) parseLine(line string, person *types.Person, dates *[]time.Time) error {
+	words := strings.Split(line, " ")
+
+	for _, word := range words {
+		if isCNE(word) {
+			person.CNE = word
+		}
+
+		if dateTime, err := utilities.ParseDate(word); err == nil {
+			*dates = append(*dates, dateTime)
+		} else if err != utilities.ErrNoDate {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func isCNE(word string) bool {
+	return len(word) >= minCNE && len(word) <= maxCNE && utilities.ContainsCNELengthNumbers(word)
 }
 
 func (p *Parser) SetImage(image string) {
