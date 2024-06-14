@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"passport_card_analyser/internal/adapters/core/types"
 	"passport_card_analyser/internal/adapters/core/utilities"
+	"sort"
 	"strings"
 	"time"
 )
@@ -57,14 +58,14 @@ const (
 	maxCNE      = 8
 )
 
-func (p *Parser) ParseCitizen() (*types.Person, error) {
+func (p *Parser) ParseCitizen() (*types.Person, []string, error) {
 	names := []string{}
 
 	lines := strings.Split(p.text, "\n")
 
 	person := &types.Person{}
 
-	var date1, date2 time.Time
+	var dates []time.Time
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -95,72 +96,32 @@ func (p *Parser) ParseCitizen() (*types.Person, error) {
 		}
 
 		if err != nil {
-			return nil, fmt.Errorf("can't parse date %s: %v", line[:10], err)
+			return nil, nil, fmt.Errorf("can't parse date %s: %v", line[:10], err)
 		}
 
 		// Store dates temporarily
 		if !dateTime.IsZero() {
-			if date1.IsZero() {
-				date1 = dateTime
-			} else if date2.IsZero() {
-				date2 = dateTime
-			}
+			dates = append(dates, dateTime)
 		}
 	}
 
-	// swap if needed
-	if !date1.IsZero() && !date1.IsZero() {
-		if date1.Before(date2) {
-			person.BirthDate = date1
-			person.ExpireDate = date2
-		} else {
-			person.BirthDate = date2
-			person.ExpireDate = date1
-		}
-	} else if !date1.IsZero() {
-		person.BirthDate = date1
-	} else if !date2.IsZero() {
-		person.BirthDate = date1
+	// sort dates
+	sort.Slice(dates, func(i, j int) bool {
+		return dates[i].Before(dates[j])
+	})
+
+	// assign birth date and expire date
+	if len(dates) == 1 {
+		person.BirthDate = dates[0]
+	} else if len(dates) == 2 {
+		person.BirthDate = dates[0]
+		person.ExpireDate = dates[1]
+	} else if len(dates) == 2 {
+		person.BirthDate = dates[0]
+		person.ExpireDate = dates[2]
 	}
 
-	utilities.PrintArrayString("names", names)
-
-	p.OpenImage()
-
-	for i := 0; i < 3; i++ {
-		j := -1
-		switch i {
-		case 0:
-			// this is the names.FirstName
-			fmt.Print("give me which index you think is the first name: ")
-			fmt.Scan(&j)
-			if j < 0 || j > len(names)-1 {
-				person.FirstName = ""
-				continue
-			}
-			person.FirstName = names[j]
-		case 1:
-			// this is the names.LastName
-			fmt.Print("give me which index you think is the last name: ")
-			fmt.Scan(&j)
-			if j < 0 || j > len(names)-1 {
-				person.LastName = ""
-				continue
-			}
-			person.LastName = names[j]
-		case 2:
-			// this is the names.City
-			fmt.Print("give me which index you think is the city: ")
-			fmt.Scan(&j)
-			if j < 0 || j > len(names)-1 {
-				person.City = ""
-				continue
-			}
-			person.City = names[j]
-		}
-	}
-
-	return person, nil
+	return person, names, nil
 }
 
 func (p *Parser) SetImage(image string) {
