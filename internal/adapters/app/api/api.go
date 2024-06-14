@@ -24,6 +24,11 @@ func NewAdapter(port string) *Adapter {
 }
 
 func (adap *Adapter) getPassportData(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 	err := r.ParseMultipartForm(10 << 20) // 10 MB max
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
