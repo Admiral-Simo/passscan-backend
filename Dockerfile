@@ -1,5 +1,6 @@
-FROM golang:1.22.1-alpine AS builder
+FROM golang:1.22.1-bullseye AS builder
 
+# Set the working directory
 WORKDIR /app
 
 # Copy go mod and sum files
@@ -14,17 +15,28 @@ COPY . .
 # Build the Go app
 RUN go build -o main ./cmd
 
-# Start a new stage from scratch
-FROM alpine:latest
+# Start a new stage from Ubuntu
+FROM ubuntu:latest
 
-# Install tesseract
-RUN apk --no-cache add tesseract-ocr
+# Install tesseract-ocr and its dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        tesseract-ocr \
+        tesseract-ocr-eng \
+        libtesseract-dev \
+        libleptonica-dev \
+        gcc \
+        g++
+
+# Set the working directory
+WORKDIR /app
 
 # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/main /main
+COPY --from=builder /app/main /app/main
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["/main"]
+CMD ["/app/main"]
+
