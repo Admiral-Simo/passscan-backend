@@ -24,10 +24,10 @@ func NewAdapter(port string) *Adapter {
 }
 
 func (adap *Adapter) getPassportData(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	err := r.ParseMultipartForm(10 << 20) // 10 MB max
 	if err != nil {
@@ -90,8 +90,21 @@ func (adap *Adapter) Run() (*types.Person, error) {
 	http.HandleFunc("/get-passport-data", adap.getPassportData)
 
 	fmt.Printf("listening to port %s\n", adap.Port)
-	if err := http.ListenAndServe(adap.Port, nil); err != nil {
+	if err := http.ListenAndServe(adap.Port, enableCors(http.DefaultServeMux)); err != nil {
 		log.Fatal("Server error:", err)
 	}
 	return nil, nil
+}
+
+func enableCors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
