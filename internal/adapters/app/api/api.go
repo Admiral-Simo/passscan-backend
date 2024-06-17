@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"passport_card_analyser/internal/adapters/core/ocr"
@@ -86,14 +85,12 @@ func (adap *Adapter) getPassportData(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func (adap *Adapter) Run() (*types.Person, error) {
+func (adap *Adapter) Run() error {
 	http.HandleFunc("/get-passport-data", adap.getPassportData)
 
 	fmt.Printf("listening to port %s\n", adap.Port)
-	if err := http.ListenAndServe(adap.Port, enableCors(http.DefaultServeMux)); err != nil {
-		log.Fatal("Server error:", err)
-	}
-	return nil, nil
+	err := http.ListenAndServe(adap.Port, enableCors(http.DefaultServeMux))
+	return err
 }
 
 func enableCors(next http.Handler) http.Handler {
