@@ -10,9 +10,14 @@ sudo apt install tesseract-ocr
 tesseract -v
 ```
 
-#### Compile the program
+#### build the server
 ```sh
-go build cmd/main.go
+make build
 ```
 
-###### Usage: ./program --passport example_image.{jpeg, png, jpg ...}
+###### Usage: ./main
+###### it will listen on port 8080
+###### you can in the main.go
+
+###### you should upload the file using http to this route /get-passport-data
+###### You'll get as a response the data attached to the Passport Card or ID Card
