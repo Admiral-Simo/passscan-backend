@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"passport_card_analyser/internal/adapters/app/api"
@@ -20,7 +19,7 @@ func main() {
 		}
 	}
 
-    portString := ":8080"
+	portString := ":8080"
 	api := api.NewAdapter(portString)
 	log.Fatal(api.Run())
 }
