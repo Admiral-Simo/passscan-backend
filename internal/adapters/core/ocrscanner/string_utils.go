@@ -1,13 +1,13 @@
-package utilities
+package ocrscanner
 
 import (
 	"fmt"
-	"passport_card_analyser/internal/adapters/core/types"
+	"passport_card_analyser/types"
 	"time"
 	"unicode"
 )
 
-func ContainsTwoSlashes(s string) bool {
+func containsTwoSlashes(s string) bool {
 	count := 0
 	for _, r := range s {
 		if r == '/' {
@@ -17,7 +17,7 @@ func ContainsTwoSlashes(s string) bool {
 	return count == 2
 }
 
-func ContainsTwoDots(s string) bool {
+func containsTwoDots(s string) bool {
 	count := 0
 	for _, r := range s {
 		if r == '.' {
@@ -27,7 +27,7 @@ func ContainsTwoDots(s string) bool {
 	return count == 2
 }
 
-func ContainsCNELengthNumbers(s string) bool {
+func containsCNELengthNumbers(s string) bool {
 	count := 0
 	for _, r := range s {
 		if unicode.IsDigit(r) {
@@ -37,7 +37,7 @@ func ContainsCNELengthNumbers(s string) bool {
 	return !unicode.IsDigit(rune(s[0])) && count >= 4
 }
 
-func ContainsTwoSpaces(s string) bool {
+func containsTwoSpaces(s string) bool {
 	count := 0
 	for _, r := range s {
 		if r == ' ' {
@@ -47,7 +47,7 @@ func ContainsTwoSpaces(s string) bool {
 	return count == 2
 }
 
-func AllDigits(s string) bool {
+func allDigits(s string) bool {
 	for _, r := range s {
 		if !unicode.IsDigit(r) {
 			return false
@@ -56,7 +56,7 @@ func AllDigits(s string) bool {
 	return true
 }
 
-func AllUpper(s string) bool {
+func allUpper(s string) bool {
 	if len(s) == 0 {
 		return false
 	}
@@ -68,7 +68,7 @@ func AllUpper(s string) bool {
 	return true
 }
 
-func PrintArrayString(label string, strings []string) {
+func printArrayString(label string, strings []string) {
 	fmt.Printf("%s: { ", label)
 	for i, word := range strings {
 		fmt.Printf("%d : %s, ", i, word)
@@ -76,7 +76,7 @@ func PrintArrayString(label string, strings []string) {
 	fmt.Printf(" }\n")
 }
 
-func PrintPerson(person *types.Person) {
+func printPerson(person *types.Person) {
 	printPersonHelperForStrings("CNE:", person.CNE)
 	printPersonHelperForStrings("FirstName:", person.FirstName)
 	printPersonHelperForStrings("LastName:", person.LastName)

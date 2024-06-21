@@ -1,25 +1,21 @@
 package main
 
 import (
-	"log"
-	"os"
 	"passport_card_analyser/internal/adapters/app/api"
+	"passport_card_analyser/internal/adapters/core/ocrscanner"
+	"passport_card_analyser/internal/adapters/framework/left/httpadapter"
+	"passport_card_analyser/internal/ports"
 )
 
 func main() {
-	// Define the directory path
-	uploadDir := "uploads"
-
-	// Check if the directory exists
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		// Create the directory if it doesn't exist
-		err := os.Mkdir(uploadDir, 0755) // 0755 is the permission for the directory
-		if err != nil {
-			log.Fatalf("Failed to create directory: %v", err)
-		}
-	}
-
-	portString := ":8080"
-	api := api.NewAdapter(portString)
-	log.Fatal(api.Run())
+	var (
+		portString = ":8080"
+		apier      ports.APIPort
+		httpdriver ports.HttpPort
+		ocradapter ports.OCRScannerPost
+	)
+	ocradapter = ocrscanner.NewAdapter()
+	apier = api.NewAdapter(ocradapter)
+	httpdriver = httpadapter.NewAdapter(apier)
+	httpdriver.Run(portString)
 }

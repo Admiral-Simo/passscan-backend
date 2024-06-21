@@ -1,8 +1,8 @@
-package utilities
+package httpadapter
 
 import "strings"
 
-func CheckImage(fileStr string) bool {
+func checkImage(fileStr string) bool {
 	imageExtensions := []string{".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp", ".avif", ".gif", ".png"}
 	for _, imgExtension := range imageExtensions {
 		if strings.HasSuffix(fileStr, imgExtension) {
@@ -12,7 +12,7 @@ func CheckImage(fileStr string) bool {
 	return false
 }
 
-func ExtractExtension(fileStr string) string {
+func extractExtension(fileStr string) string {
 	index := strings.LastIndex(fileStr, ".")
 	if index == -1 {
 		return ""
