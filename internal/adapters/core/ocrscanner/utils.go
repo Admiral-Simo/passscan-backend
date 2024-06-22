@@ -25,11 +25,11 @@ func getContent(image string) (string, error) {
 	return string(out), nil
 }
 
-func isCNE(word string) bool {
-	return len(word) >= minCNE && len(word) <= maxCNE && containsCNELengthNumbers(word)
+func isCIN(word string) bool {
+	return len(word) >= minCIN && len(word) <= maxCIN && containsCINLengthNumbers(word)
 }
 
 const (
-	minCNE = 7
-	maxCNE = 8
+	minCIN = 7
+	maxCIN = 8
 )

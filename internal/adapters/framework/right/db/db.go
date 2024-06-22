@@ -57,7 +57,7 @@ func (dba Adapter) GetPassport(cne string) (*types.PersonWithNames, error) {
 		return nil, err
 	}
 	for _, person := range persons {
-		if person.Person.CNE == cne {
+		if person.Person.CIN == cne {
 			return person, nil
 		}
 	}

@@ -46,8 +46,8 @@ func (p Adapter) parseLine(line string, person *types.Person, dates *[]time.Time
 	words := strings.Split(line, " ")
 
 	for _, word := range words {
-		if isCNE(word) {
-			person.CNE = word
+		if isCIN(word) {
+			person.CIN = word
 		}
 
 		if dateTime, err := parseDate(word); err == nil {

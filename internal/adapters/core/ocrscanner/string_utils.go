@@ -27,7 +27,7 @@ func containsTwoDots(s string) bool {
 	return count == 2
 }
 
-func containsCNELengthNumbers(s string) bool {
+func containsCINLengthNumbers(s string) bool {
 	count := 0
 	for _, r := range s {
 		if unicode.IsDigit(r) {
@@ -77,7 +77,7 @@ func printArrayString(label string, strings []string) {
 }
 
 func printPerson(person *types.Person) {
-	printPersonHelperForStrings("CNE:", person.CNE)
+	printPersonHelperForStrings("CIN:", person.CIN)
 	printPersonHelperForStrings("FirstName:", person.FirstName)
 	printPersonHelperForStrings("LastName:", person.LastName)
 	printPersonHelperForStrings("City:", person.City)

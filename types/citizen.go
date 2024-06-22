@@ -3,7 +3,7 @@ package types
 import "time"
 
 type Person struct {
-	CNE        string
+	CIN        string
 	FirstName  string
 	LastName   string
 	City       string
