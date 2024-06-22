@@ -14,10 +14,10 @@ func NewAdapter() *Adapter {
 	return &Adapter{}
 }
 
-func (ocra Adapter) ParseCitizen(image string) (*types.Person, []string, error) {
+func (ocra Adapter) ParseCitizen(image string) (*types.Person, error) {
 	text, err := getContent(image)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	lines := strings.Split(text, "\n")
 	person := &types.Person{}
@@ -32,22 +32,24 @@ func (ocra Adapter) ParseCitizen(image string) (*types.Person, []string, error) 
 		}
 
 		if err := ocra.parseLine(line, person, &dates); err != nil {
-			return nil, nil, fmt.Errorf("can't parse line %s: %v", line, err)
+			return nil, fmt.Errorf("can't parse line %s: %v", line, err)
 		}
 	}
 
 	sortDates(dates)
 	assignDates(person, dates)
 
-	return person, names, nil
+	person.PossibleNamesAddress = names
+
+	return person, nil
 }
 
 func (p Adapter) parseLine(line string, person *types.Person, dates *[]time.Time) error {
 	words := strings.Split(line, " ")
 
 	for _, word := range words {
-		if isCIN(word) {
-			person.CIN = word
+		if isCNIE(word) {
+			person.CNIE = word
 		}
 
 		if dateTime, err := parseDate(word); err == nil {

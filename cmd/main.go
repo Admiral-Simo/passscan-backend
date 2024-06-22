@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"passport_card_analyser/internal/adapters/app/api"
 	"passport_card_analyser/internal/adapters/core/ocrscanner"
 	"passport_card_analyser/internal/adapters/framework/left/httpadapter"
@@ -16,7 +17,10 @@ func main() {
 		httpdriver ports.HttpPort
 		ocradapter ports.OCRScannerPost
 	)
-	store = db.NewAdapter("database.txt")
+	store, err := db.NewAdapter()
+	if err != nil {
+		log.Fatal(err)
+	}
 	ocradapter = ocrscanner.NewAdapter()
 	apier = api.NewAdapter(ocradapter, store)
 	httpdriver = httpadapter.NewAdapter(apier)

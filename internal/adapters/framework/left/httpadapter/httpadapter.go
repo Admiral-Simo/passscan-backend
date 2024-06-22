@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"passport_card_analyser/internal/ports"
-	"passport_card_analyser/types"
 	"time"
 )
 
@@ -46,6 +45,8 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	nationality := r.FormValue("nationality")
+
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
@@ -76,18 +77,20 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 
 	// parse citizen
 
-	person, names, err := httpa.apia.GetPassportData(outputFilePath)
+	person, err := httpa.apia.GetPassportData(outputFilePath, nationality)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	response := types.PersonWithNames{
-		Person:               person,
-		PossibleNamesAddress: names,
-	}
 
-	json.NewEncoder(w).Encode(response)
+	fmt.Println("response:", person)
+	fmt.Println("nationality:", nationality)
+
+	person.Nationality = nationality
+
+	json.NewEncoder(w).Encode(person)
 }
 
 func (httpa Adapter) Run(postString string) {

@@ -3,11 +3,24 @@ package ports
 import "passport_card_analyser/types"
 
 type DBPort interface {
-	CreatePassport(person types.PersonWithNames) error
-	GetPassports() ([]*types.PersonWithNames, error)
+	// passports
+	dBPassport
+	dBPassportTemplate
+	dBCleaner
+}
 
-	GetPassport(cin string) (*types.PersonWithNames, error)
-
-	CreateTemplate(cin string) (*types.PersonWithNames, error)
+type dBCleaner interface {
 	CloseDatabase() error
+}
+
+type dBPassportTemplate interface {
+	CreateTemplate(template types.OCRTemplate) error
+	GetTemplateByNationality(nationality string) (*types.OCRTemplate, error)
+}
+
+type dBPassport interface {
+	CreatePassport(person types.Person) error
+	GetPassports() ([]*types.Person, error)
+
+	GetPassport(cin string) (*types.Person, error)
 }
