@@ -9,7 +9,7 @@ func (dba *Adapter) CreateTemplate(template types.OCRTemplate) error {
 
 func (dba *Adapter) GetTemplateByNationality(nationality string) (*types.OCRTemplate, error) {
 	var template types.OCRTemplate
-	err := dba.db.Where("nationality = ?", nationality).First(&template).Error
+	err := dba.db.Where("nationality = ?", nationality).Preload("Bounds").First(&template).Error
 	if err != nil {
 		return nil, err
 	}
