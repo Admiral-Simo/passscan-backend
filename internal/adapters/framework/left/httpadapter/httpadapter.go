@@ -82,12 +82,7 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	type responseType struct {
-		Person               *types.Person `json:"person"`
-		PossibleNamesAddress []string      `json:"possible_names_address"`
-	}
-
-	response := responseType{
+	response := types.PersonWithNames{
 		Person:               person,
 		PossibleNamesAddress: names,
 	}
