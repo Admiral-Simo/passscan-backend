@@ -85,9 +85,6 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Println("response:", person)
-	fmt.Println("nationality:", nationality)
-
 	person.Nationality = nationality
 
 	json.NewEncoder(w).Encode(person)
