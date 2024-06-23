@@ -14,6 +14,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	CreateTemplate(store)
+	UpdateTemplate(store)
 	GetTemplate(store, "MA")
 }
 
@@ -32,7 +34,27 @@ func CreateTemplate(store ports.DBPort) {
 		Nationality: "MA",
 		Bounds:      rectangles,
 	}
-	store.CreateTemplate(template)
+	err := store.CreateTemplate(template)
+	log.Fatal(err)
+}
+
+func UpdateTemplate(store ports.DBPort) {
+	var rectangles []types.Rectangle
+	for i := 0; i < 7; i++ {
+		rectangle := types.Rectangle{
+			TopLeft:     float64(10),
+			TopRight:    float64(10 + i*2),
+			BottomLeft:  float64(10 - i),
+			BottomRight: float64(10 + i),
+		}
+		rectangles = append(rectangles, rectangle)
+	}
+	template := types.OCRTemplate{
+		ID:          1,
+		Nationality: "MA",
+		Bounds:      rectangles,
+	}
+	store.UpdateTemplate(template)
 }
 
 func GetTemplate(store ports.DBPort, nationatlity string) {
@@ -40,6 +62,13 @@ func GetTemplate(store ports.DBPort, nationatlity string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Println(template)
+}
+
+func GetTemplates(store ports.DBPort, nationatlity string) {
+	templates, err := store.GetTemplates()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(templates)
 }
