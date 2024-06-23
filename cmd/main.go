@@ -26,5 +26,8 @@ func main() {
 	httpdriver = httpadapter.NewAdapter(apier)
 	httpdriver.Run(portString)
 
-	store.CloseDatabase()
+	err = store.CloseDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
