@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"passport_card_analyser/internal/ports"
+	"passport_card_analyser/types"
 	"time"
 )
 
@@ -87,7 +88,7 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 
 	person.Nationality = nationality
 
-	json.NewEncoder(w).Encode(person)
+	json.NewEncoder(w).Encode(getResponseFromPerson(*person))
 }
 
 func (httpa Adapter) Run(postString string) {
@@ -96,3 +97,31 @@ func (httpa Adapter) Run(postString string) {
 	fmt.Printf("listening to port %s\n", postString)
 	http.ListenAndServe(postString, enableCors(http.DefaultServeMux))
 }
+
+type response struct {
+	CNIE                 string    `json:"cin"`
+	FirstName            string    `json:"first_name"`
+	LastName             string    `json:"last_name"`
+	City                 string    `json:"city"`
+	Nationality          string    `json:"nationality"`
+	BirthDate            time.Time `json:"birth_date"`
+	ExpireDate           time.Time `json:"expire_date"`
+	PossibleNamesAddress []string  `json:"possible_names_address"`
+}
+
+func getResponseFromPerson(person types.Person) response {
+	var resp response
+	resp.CNIE = person.CNIE
+	resp.FirstName = person.FirstName
+	resp.LastName = person.LastName
+	resp.City = person.City
+	resp.Nationality = person.Nationality
+	resp.BirthDate = person.BirthDate
+	resp.ExpireDate = person.ExpireDate
+	for _, name := range person.PossibleNamesAddress {
+		resp.PossibleNamesAddress = append(resp.PossibleNamesAddress, name.Name)
+	}
+
+	return resp
+}
+
