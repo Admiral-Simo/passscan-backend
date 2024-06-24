@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"passport_card_analyser/internal/ports"
 	"passport_card_analyser/types"
+	"strings"
 )
 
 type Adapter struct {
@@ -19,6 +20,7 @@ func NewAdapter(ocrscanner ports.OCRScannerPost, database ports.DBPort) *Adapter
 }
 
 func (apia Adapter) GetPassportData(filepath string, nationality string) (*types.Person, error) {
+	nationality = strings.ToUpper(nationality)
 	template, err := apia.database.GetTemplateByNationality(nationality)
 	if err != nil {
 		return nil, fmt.Errorf("unable to identify nationality %s", nationality)
