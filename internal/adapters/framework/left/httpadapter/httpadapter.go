@@ -9,7 +9,6 @@ import (
 	"os"
 	"passport_card_analyser/internal/ports"
 	"passport_card_analyser/types"
-	"strings"
 	"time"
 )
 
