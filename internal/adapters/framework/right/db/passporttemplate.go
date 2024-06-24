@@ -77,3 +77,12 @@ func (dba Adapter) GetTemplates() ([]*types.OCRTemplate, error) {
 	}
 	return templates, nil
 }
+
+func (dba *Adapter) GetTemplateNationalities() ([]string, error) {
+	var nationalities []string
+	err := dba.db.Model(&types.OCRTemplate{}).Distinct().Pluck("nationality", &nationalities).Error
+	if err != nil {
+		return nil, err
+	}
+	return nationalities, nil
+}

@@ -31,3 +31,6 @@ func (apia Adapter) GetPassportData(filepath string, nationality string) (*types
 	}
 	return person, err
 }
+func (apia Adapter) GetTempateNationalities() ([]string, error) {
+	return apia.database.GetTemplateNationalities()
+}

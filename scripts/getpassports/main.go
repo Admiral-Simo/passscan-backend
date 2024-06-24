@@ -14,9 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	CreateTemplate(store)
 	UpdateTemplate(store)
-	GetTemplate(store, "MA")
 }
 
 func CreateTemplate(store ports.DBPort) {
@@ -42,7 +40,7 @@ func UpdateTemplate(store ports.DBPort) {
 	var rectangles []types.Rectangle
 	for i := 0; i < 7; i++ {
 		rectangle := types.Rectangle{
-			TopLeft:     float64(10),
+			TopLeft:     float64(10.982328),
 			TopRight:    float64(10 + i*2),
 			BottomLeft:  float64(10 - i),
 			BottomRight: float64(10 + i),

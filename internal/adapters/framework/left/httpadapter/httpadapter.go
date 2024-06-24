@@ -91,8 +91,28 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(getResponseFromPerson(*person))
 }
 
+func (httpa Adapter) HandleGetTemplateNationalities(w http.ResponseWriter, r *http.Request) {
+	nationalities, err := httpa.apia.GetTempateNationalities()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type Response struct {
+		Nationalities []string `json:"nationalities"`
+	}
+
+	response := Response{
+		Nationalities: nationalities,
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
 func (httpa Adapter) Run(postString string) {
 	http.HandleFunc("/get-passport-data", httpa.HandleGetPassportData)
+	http.HandleFunc("/get-nationalities", httpa.HandleGetTemplateNationalities)
 
 	fmt.Printf("listening to port %s\n", postString)
 	http.ListenAndServe(postString, enableCors(http.DefaultServeMux))
@@ -124,4 +144,3 @@ func getResponseFromPerson(person types.Person) response {
 
 	return resp
 }
-

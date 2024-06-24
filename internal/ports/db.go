@@ -16,8 +16,9 @@ type dBCleaner interface {
 type dBPassportTemplate interface {
 	GetTemplateByNationality(nationality string) (*types.OCRTemplate, error)
 	GetTemplates() ([]*types.OCRTemplate, error)
-	CreateTemplate(template types.OCRTemplate) error
+	GetTemplateNationalities() ([]string, error)
 
+	CreateTemplate(template types.OCRTemplate) error
 	UpdateTemplate(template types.OCRTemplate) error
 }
 
