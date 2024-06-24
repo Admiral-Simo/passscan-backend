@@ -25,7 +25,7 @@ func (apia Adapter) GetPassportData(filepath string, nationality string) (*types
 	}
 	_ = template
 	// later make the ParseCitizen take the bounds as an input to get the exact data
-	person, err := apia.ocrscanner.ParseCitizen(filepath)
+	person, err := apia.ocrscanner.ParseCitizen(filepath, template.Bounds)
 	if err == nil {
 		apia.database.CreatePassport(*person)
 	}

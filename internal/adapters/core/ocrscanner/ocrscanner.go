@@ -14,7 +14,8 @@ func NewAdapter() *Adapter {
 	return &Adapter{}
 }
 
-func (ocra Adapter) ParseCitizen(image string) (*types.Person, error) {
+func (ocra Adapter) ParseCitizen(image string, bounds []types.Rectangle) (*types.Person, error) {
+	fmt.Println("bounds:", bounds)
 	text, err := getContent(image)
 	if err != nil {
 		return nil, err
@@ -39,7 +40,11 @@ func (ocra Adapter) ParseCitizen(image string) (*types.Person, error) {
 	sortDates(dates)
 	assignDates(person, dates)
 
-	person.PossibleNamesAddress = names
+	for _, name := range names {
+		person.PossibleNamesAddress = append(person.PossibleNamesAddress, types.PossibleName{
+			Name: name,
+		})
+	}
 
 	return person, nil
 }
