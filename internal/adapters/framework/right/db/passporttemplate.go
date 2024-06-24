@@ -35,15 +35,20 @@ func (dba *Adapter) UpdateTemplate(template types.OCRTemplate) error {
 		return err
 	}
 
-	// Update the template ID to match the existing one
+	// Set the template ID to match the existing one
 	template.ID = existingTemplate.ID
 
-	// Update the OCRTemplate
+	// Delete existing rectangles associated with the template
+	if err := dba.db.Where("template_id = ?", template.ID).Delete(&types.Rectangle{}).Error; err != nil {
+		return err
+	}
+
+	// Save the updated OCRTemplate
 	if err := dba.db.Save(&template).Error; err != nil {
 		return err
 	}
 
-	// Update the Bounds associated with the template
+	// Add the new bounds (rectangles) associated with the template
 	for _, bound := range template.Bounds {
 		bound.TemplateID = template.ID
 		if err := dba.db.Save(&bound).Error; err != nil {
