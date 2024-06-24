@@ -2,7 +2,7 @@ package types
 
 type OCRTemplate struct {
 	ID          uint        `gorm:"primaryKey"`
-	Nationality string      `gorm:"index:idx_nationality" json:"nationality"`
+	Nationality string      `gorm:"uniqueIndex:idx_nationality" json:"nationality"`
 	Bounds      []Rectangle `gorm:"foreignKey:TemplateID" json:"bounds"`
 }
 
