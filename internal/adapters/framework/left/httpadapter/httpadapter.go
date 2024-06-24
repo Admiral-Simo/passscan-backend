@@ -9,6 +9,7 @@ import (
 	"os"
 	"passport_card_analyser/internal/ports"
 	"passport_card_analyser/types"
+	"strings"
 	"time"
 )
 
@@ -47,6 +48,7 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 	}
 
 	nationality := r.FormValue("nationality")
+	nationality = strings.ToUpper(nationality)
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {
