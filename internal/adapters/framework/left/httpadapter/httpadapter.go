@@ -76,6 +76,7 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 	// parse citizen
 
 	person, err := httpa.apia.GetPassportData(outputFilePath)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -86,8 +87,12 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(person)
 }
 
+func (httpa Adapter) HandleGetIDCard(w http.ResponseWriter, r *http.Request) {
+}
+
 func (httpa Adapter) Run(postString string) {
 	http.HandleFunc("/get-passport-data", httpa.HandleGetPassportData)
+	http.HandleFunc("/get-id-card-data", httpa.HandleGetIDCard)
 
 	fmt.Printf("listening to port %s\n", postString)
 	http.ListenAndServe(postString, enableCors(http.DefaultServeMux))

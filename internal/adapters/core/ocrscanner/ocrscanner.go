@@ -2,6 +2,7 @@ package ocrscanner
 
 import (
 	"fmt"
+	"passport_card_analyser/internal/adapters/core/mrz"
 	"passport_card_analyser/types"
 	"strings"
 	"time"
@@ -14,7 +15,52 @@ func NewAdapter() *Adapter {
 	return &Adapter{}
 }
 
-func (ocra Adapter) ParseCitizen(image string) (*types.Person, error) {
+func (ocra Adapter) ParsePassport(image string) (*types.MRZData, error) {
+	text, err := getContent(image)
+	if err != nil {
+		return nil, err
+	}
+
+	// get all the long words that contain multiple < signs
+
+	mrz_text := []string{}
+	text = strings.TrimSpace(text)
+	for _, line := range strings.Split(text, "\n") {
+		if containsMultipleLessThan(line) {
+			mrz_text = append(mrz_text, strings.TrimSpace(line))
+		}
+	}
+
+	return mrz.ParseMRZ(strings.Join(mrz_text, "\n"))
+}
+
+type PassportData struct {
+	DocumentType    string
+	DocumentSubtype string
+	CountryCode     string
+	LastName        string
+	FirstName       string
+	DocumentNumber  string
+	Nationality     string
+	DateOfBirth     string
+	Sex             string
+	ExpirationDate  string
+	PersonalNumber  string
+	OptionalData    string
+	Checksum        string
+}
+
+func containsMultipleLessThan(line string) bool {
+	count := 0
+	for _, r := range line {
+		if r == '<' {
+			count++
+		}
+	}
+	return count > 5
+}
+
+func (ocra Adapter) ParseIDCard(image string) (*types.Person, error) {
 	text, err := getContent(image)
 	if err != nil {
 		return nil, err
@@ -38,12 +84,6 @@ func (ocra Adapter) ParseCitizen(image string) (*types.Person, error) {
 
 	sortDates(dates)
 	assignDates(person, dates)
-
-	for _, name := range names {
-		person.PossibleNamesAddress = append(person.PossibleNamesAddress, types.PossibleName{
-			Name: name,
-		})
-	}
 
 	return person, nil
 }

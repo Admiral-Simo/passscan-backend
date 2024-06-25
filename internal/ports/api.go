@@ -5,5 +5,5 @@ import (
 )
 
 type APIPort interface {
-	GetPassportData(filepath string) (*types.Person, error)
+	GetPassportData(filepath string) (*types.MRZData, error)
 }

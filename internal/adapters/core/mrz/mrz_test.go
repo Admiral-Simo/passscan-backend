@@ -25,4 +25,11 @@ C47NTZ8CWOD<<8103103M2905198<<<<<<<<<<<<<<<6`
 	data, err = ParseMRZ(secondCard)
 	assert.NoError(t, err)
 	fmt.Printf("data: %+v\n", data)
+
+	// japanese passport
+	thirdCard := `P<JPNGAIMU<<HANAKO<<<<<<<<<<<<<<<<<<<<<<<<<<
+TT15442512JPN9905050F3012257<<<<<<<<<<<<<<06`
+	data, err = ParseMRZ(thirdCard)
+	assert.NoError(t, err)
+	fmt.Printf("data: %+v\n", data)
 }
