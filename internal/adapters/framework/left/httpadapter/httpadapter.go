@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"passport_card_analyser/internal/ports"
-	"passport_card_analyser/types"
 	"time"
 )
 
@@ -46,8 +45,6 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	nationality := r.FormValue("nationality")
-
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
@@ -78,7 +75,7 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 
 	// parse citizen
 
-	person, err := httpa.apia.GetPassportData(outputFilePath, nationality)
+	person, err := httpa.apia.GetPassportData(outputFilePath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -86,61 +83,12 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 
 	w.Header().Set("Content-Type", "application/json")
 
-	person.Nationality = nationality
-
-	json.NewEncoder(w).Encode(getResponseFromPerson(*person))
-}
-
-func (httpa Adapter) HandleGetTemplateNationalities(w http.ResponseWriter, r *http.Request) {
-	nationalities, err := httpa.apia.GetTempateNationalities()
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	type Response struct {
-		Nationalities []string `json:"nationalities"`
-	}
-
-	response := Response{
-		Nationalities: nationalities,
-	}
-
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(person)
 }
 
 func (httpa Adapter) Run(postString string) {
 	http.HandleFunc("/get-passport-data", httpa.HandleGetPassportData)
-	http.HandleFunc("/get-nationalities", httpa.HandleGetTemplateNationalities)
 
 	fmt.Printf("listening to port %s\n", postString)
 	http.ListenAndServe(postString, enableCors(http.DefaultServeMux))
-}
-
-type response struct {
-	CNIE                 string    `json:"cin"`
-	FirstName            string    `json:"first_name"`
-	LastName             string    `json:"last_name"`
-	City                 string    `json:"city"`
-	Nationality          string    `json:"nationality"`
-	BirthDate            time.Time `json:"birth_date"`
-	ExpireDate           time.Time `json:"expire_date"`
-	PossibleNamesAddress []string  `json:"possible_names_address"`
-}
-
-func getResponseFromPerson(person types.Person) response {
-	var resp response
-	resp.CNIE = person.CNIE
-	resp.FirstName = person.FirstName
-	resp.LastName = person.LastName
-	resp.City = person.City
-	resp.Nationality = person.Nationality
-	resp.BirthDate = person.BirthDate
-	resp.ExpireDate = person.ExpireDate
-	for _, name := range person.PossibleNamesAddress {
-		resp.PossibleNamesAddress = append(resp.PossibleNamesAddress, name.Name)
-	}
-
-	return resp
 }
