@@ -33,6 +33,10 @@ func ParseMRZ(mrzText string) (*types.MRZData, error) {
 	lines := strings.Split(mrzText, "\n")
 
 	// Check number of lines and handle different MRZ formats (TD1, TD2, TD3)
+	for i, line := range lines {
+		lines[i] = strings.ReplaceAll(line, "\u003c", "<")
+	}
+
 	switch {
 	case len(lines) < 2:
 		return &types.MRZData{}, errors.New("Invalid MRZ data: less than 2 lines")
@@ -74,14 +78,19 @@ func parseTD1(line1, line2, line3 string) (*types.MRZData, error) {
 // Helper function to parse TD3 format
 func parseTD2(line1, line2 string) (*types.MRZData, error) {
 	// Example fields for TD3 format
-	documentType := line1[0:2]
-	countryCode := line1[2:5]
+	documentType := myTrim(line1[0:2])
+	countryCode := myTrim(line1[2:5])
 	names := line1[5:]
 	firstName, lastName := getNames(names)
-	documentNumber := line2[0:9]
-	sex := string(line2[20])
+	documentNumber := myTrim(line2[0:9])
+	sexIndex := findClosestSex(line2, 20)
+	var sex, birthDate, expireDate string
+	if sexIndex != -1 {
+		sex = string(line2[sexIndex])
+		birthDate = stringifyDate(line2[sexIndex-7:sexIndex-1], "birth")
+		expireDate = stringifyDate(line2[sexIndex+1:sexIndex+7], "expire")
+	}
 	// dates
-	birthDate := stringifyDate(line2[13:19])
 	names = strings.ReplaceAll(names, "<", " ")
 
 	// Create MRZData struct
@@ -93,6 +102,7 @@ func parseTD2(line1, line2 string) (*types.MRZData, error) {
 		DocumentNumber: documentNumber,
 		Sex:            sex,
 		BirthDate:      birthDate,
+		ExpireDate:     expireDate,
 		// Add more fields as needed
 	}
 
@@ -126,8 +136,8 @@ func getNames(text string) (string, string) {
 	return firstName, lastName
 }
 
-// change from YYMMDD to DD/MM/YYYY
-func stringifyDate(text string) string {
+// convert from YYMMDD to DD/MM/YYYY
+func stringifyDate(text string, dateType string) string {
 	// Check if the input string is exactly 6 characters long
 	if len(text) != 6 {
 		return "Invalid input length"
@@ -138,14 +148,54 @@ func stringifyDate(text string) string {
 	month := text[2:4]
 	day := text[4:]
 
-	// Convert the year to YYYY format (assuming 2000s)
+	// Convert the year to YYYY format
 	fullYear, err := strconv.Atoi(year)
 	if err != nil {
 		return "Invalid year"
 	}
-	fullYear += 1900
+
+	// Assume the year is in the 1900s if the year is greater than the current year, otherwise 2000s
+	currentYear := 2024 % 100 // Last two digits of the current year
+
+	switch dateType {
+	case "expire":
+		fullYear += 2000
+	case "birth":
+		if fullYear > currentYear {
+			fullYear += 1900
+		} else {
+			fullYear += 2000
+		}
+	}
 
 	// Format the date as DD/MM/YYYY
 	formattedDate := fmt.Sprintf("%s/%s/%d", day, month, fullYear)
 	return formattedDate
+}
+
+func myTrim(input string) string {
+	input = strings.ReplaceAll(input, "<", " ")
+	input = strings.TrimSpace(input)
+	return input
+}
+
+func findClosestSex(line string, index int) int {
+	outOfBounds := func(i, j int) bool {
+		return i >= len(line) || j < 0
+	}
+
+	i, j := index, index
+	for {
+		if outOfBounds(i, j) {
+			return -1
+		}
+		if line[i] == 'F' || line[i] == 'M' {
+			return i
+		}
+		if line[j] == 'F' || line[j] == 'M' {
+			return j
+		}
+		i++
+		j--
+	}
 }

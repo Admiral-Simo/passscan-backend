@@ -16,7 +16,7 @@ func NewAdapter() *Adapter {
 }
 
 func (ocra Adapter) ParsePassport(image string) (*types.MRZData, error) {
-	text, err := getContent(image)
+	text, err := getContent(image, "passport")
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func containsMultipleLessThan(line string) bool {
 }
 
 func (ocra Adapter) ParseIDCard(image string) (*types.Person, error) {
-	text, err := getContent(image)
+	text, err := getContent(image, "id")
 	if err != nil {
 		return nil, err
 	}

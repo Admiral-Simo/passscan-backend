@@ -36,6 +36,7 @@ type MRZData struct {
 	Sex            string `json:"sex"`
 	DocumentNumber string `json:"documentNumber"`
 	BirthDate      string `json:"birthDate"`
+	ExpireDate     string `json:"expireDate"`
 	// Add more fields as needed
 }
 
