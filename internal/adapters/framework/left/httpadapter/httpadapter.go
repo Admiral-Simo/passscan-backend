@@ -8,11 +8,6 @@ import (
 	"net/http"
 	"os"
 	"passport_card_analyser/internal/ports"
-<<<<<<< HEAD
-	"passport_card_analyser/types"
-	"strings"
-=======
->>>>>>> plot_template
 	"time"
 )
 
@@ -50,12 +45,6 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-<<<<<<< HEAD
-	nationality := r.FormValue("nationality")
-	nationality = strings.ToUpper(nationality)
-
-=======
->>>>>>> plot_template
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
