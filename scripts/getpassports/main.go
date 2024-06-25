@@ -14,17 +14,37 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	UpdateTemplate(store)
+
+	bounds, err := GetTemplate(store, "MA")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("bounds:", bounds)
 }
 
 func CreateTemplate(store ports.DBPort) {
 	var rectangles []types.Rectangle
 	for i := 0; i < 7; i++ {
 		rectangle := types.Rectangle{
-			TopLeft:     10,
-			TopRight:    10,
-			BottomLeft:  10,
-			BottomRight: 10,
+			TopLeft: types.Point{
+				X: 10,
+				Y: 10,
+			},
+			TopRight: types.Point{
+				X: 20,
+				Y: 10,
+			},
+			BottomLeft: types.Point{
+				X: 10,
+				Y: 20,
+			},
+			BottomRight: types.Point{
+				X: 20,
+				Y: 20,
+			},
 		}
 		rectangles = append(rectangles, rectangle)
 	}
@@ -40,10 +60,22 @@ func UpdateTemplate(store ports.DBPort) {
 	var rectangles []types.Rectangle
 	for i := 0; i < 7; i++ {
 		rectangle := types.Rectangle{
-			TopLeft:     float64(10.982328),
-			TopRight:    float64(10 + i*2),
-			BottomLeft:  float64(10 - i),
-			BottomRight: float64(10 + i),
+			TopLeft: types.Point{
+				X: 10,
+				Y: 10,
+			},
+			TopRight: types.Point{
+				X: 20,
+				Y: 10,
+			},
+			BottomLeft: types.Point{
+				X: 10,
+				Y: 20,
+			},
+			BottomRight: types.Point{
+				X: 20,
+				Y: 20,
+			},
 		}
 		rectangles = append(rectangles, rectangle)
 	}
@@ -55,12 +87,9 @@ func UpdateTemplate(store ports.DBPort) {
 	store.UpdateTemplate(template)
 }
 
-func GetTemplate(store ports.DBPort, nationatlity string) {
+func GetTemplate(store ports.DBPort, nationatlity string) ([]types.Rectangle, error) {
 	template, err := store.GetTemplateByNationality(nationatlity)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(template)
+	return template.Bounds, err
 }
 
 func GetTemplates(store ports.DBPort, nationatlity string) {

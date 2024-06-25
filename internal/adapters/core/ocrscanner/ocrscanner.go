@@ -14,8 +14,7 @@ func NewAdapter() *Adapter {
 	return &Adapter{}
 }
 
-func (ocra Adapter) ParseCitizen(image string, bounds []types.Rectangle) (*types.Person, error) {
-	fmt.Println("bounds:", bounds)
+func (ocra Adapter) ParseCitizen(image string) (*types.Person, error) {
 	text, err := getContent(image)
 	if err != nil {
 		return nil, err

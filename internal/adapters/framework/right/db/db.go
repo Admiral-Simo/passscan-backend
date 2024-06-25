@@ -20,7 +20,7 @@ func NewAdapter() (*Adapter, error) {
 	}
 
 	// Auto migrate the models
-	err = db.AutoMigrate(&types.Person{}, &types.OCRTemplate{}, &types.Rectangle{}, &types.PossibleName{})
+	err = db.AutoMigrate(&types.Person{})
 	if err != nil {
 		return nil, err
 	}
