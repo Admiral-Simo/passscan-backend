@@ -6,14 +6,8 @@ import (
 	"os/exec"
 )
 
-func getContent(image string, imageType string) (string, error) {
-	var cmd *exec.Cmd
-	switch imageType {
-	case "passport":
-		cmd = exec.Command("tesseract", image, "output", "--psm", "6")
-	case "id":
-		cmd = exec.Command("tesseract", image, "output", "--psm", "11")
-	}
+func getContent(image string) (string, error) {
+    cmd := exec.Command("tesseract", image, "output", "--psm", "6")
 
 	err := cmd.Run()
 	if err != nil {
