@@ -6,27 +6,8 @@ import (
 	"passport_card_analyser/types"
 	"strconv"
 	"strings"
+	"unicode"
 )
-
-type DocumentType byte
-
-const (
-	TD1 DocumentType = iota
-	TD2
-	TD3
-)
-
-func (d DocumentType) String() string {
-	switch d {
-	case TD1:
-		return "TD1"
-	case TD2:
-		return "TD2"
-	case TD3:
-		return "TD3"
-	}
-	return "UNKNOWN"
-}
 
 // ParseMRZ parses the given MRZ text and returns MRZData and an error if any
 func ParseMRZ(mrzText string) (*types.MRZData, error) {
@@ -40,48 +21,22 @@ func ParseMRZ(mrzText string) (*types.MRZData, error) {
 	switch {
 	case len(lines) < 2:
 		return &types.MRZData{}, errors.New("Invalid MRZ data: less than 2 lines")
+	case len(lines) == 2:
+		return parsePassport(lines[0], lines[1])
 	case len(lines) == 3:
-		return parseTD1(lines[0], lines[1], lines[2])
-	case len(lines[0]) > 40:
-		return parseTD2(lines[0], lines[1])
+		return parseIdCard(lines[0], lines[1], lines[2])
 	default:
 		return &types.MRZData{}, errors.New("Unknown MRZ format")
 	}
 }
 
-// Helper function to parse TD1 format
-func parseTD1(line1, line2, line3 string) (*types.MRZData, error) {
-	// Example fields for TD1 format
-	documentType := line1[0:2]
-	countryCode := line1[2:5]
-	documentNumber := line1[5:14]
-	nationality := line2[15:18]
-	sex := string(line2[7])
-	names := line3
-	firstName, lastName := getNames(names)
-	_ = nationality
-
-	// Create MRZData struct
-	mrzData := types.MRZData{
-		DocumentType:   documentType,
-		CountryCode:    countryCode,
-		FirstName:      firstName,
-		LastName:       lastName,
-		DocumentNumber: documentNumber,
-		Sex:            sex,
-		// Add more fields as needed
-	}
-
-	return &mrzData, nil
-}
-
 // Helper function to parse TD3 format
-func parseTD2(line1, line2 string) (*types.MRZData, error) {
+func parsePassport(line1, line2 string) (*types.MRZData, error) {
 	// Example fields for TD3 format
 	documentType := myTrim(line1[0:2])
 	countryCode := myTrim(line1[2:5])
 	names := line1[5:]
-	firstName, lastName := getNames(names)
+	lastName, firstName := getNames(names)
 	documentNumber := myTrim(line2[0:9])
 	sexIndex := findClosestSex(line2, 20)
 	var sex, birthDate, expireDate string
@@ -107,6 +62,30 @@ func parseTD2(line1, line2 string) (*types.MRZData, error) {
 	}
 
 	return &mrzData, nil
+}
+
+func parseIdCard(line1, line2, line3 string) (*types.MRZData, error) {
+	documentType := myTrim(line1[0:2])
+	countryCode := myTrim(line1[2:5])
+	lastName, firstName := getNames(line3)
+	documentNumber := getCNIE(line1)
+	sexIndex := findClosestSex(line2, 7)
+	var sex, birthDate, expireDate string
+	if sexIndex != -1 {
+		sex = string(line2[sexIndex])
+		birthDate = stringifyDate(line2[sexIndex-7:sexIndex-1], "birth")
+		expireDate = stringifyDate(line2[sexIndex+1:sexIndex+7], "expire")
+	}
+	return &types.MRZData{
+		DocumentType:   documentType,
+		CountryCode:    countryCode,
+		FirstName:      firstName,
+		DocumentNumber: documentNumber,
+		Sex:            sex,
+		BirthDate:      birthDate,
+		ExpireDate:     expireDate,
+		LastName:       lastName,
+	}, nil
 }
 
 func getNames(text string) (string, string) {
@@ -136,26 +115,21 @@ func getNames(text string) (string, string) {
 	return firstName, lastName
 }
 
-// convert from YYMMDD to DD/MM/YYYY
 func stringifyDate(text string, dateType string) string {
-	// Check if the input string is exactly 6 characters long
 	if len(text) != 6 {
 		return "Invalid input length"
 	}
 
-	// Extract year, month, and day parts from the input string
 	year := text[:2]
 	month := text[2:4]
 	day := text[4:]
 
-	// Convert the year to YYYY format
 	fullYear, err := strconv.Atoi(year)
 	if err != nil {
 		return "Invalid year"
 	}
 
-	// Assume the year is in the 1900s if the year is greater than the current year, otherwise 2000s
-	currentYear := 2024 % 100 // Last two digits of the current year
+	currentYear := 2024 % 100
 
 	switch dateType {
 	case "expire":
@@ -168,7 +142,6 @@ func stringifyDate(text string, dateType string) string {
 		}
 	}
 
-	// Format the date as DD/MM/YYYY
 	formattedDate := fmt.Sprintf("%s/%s/%d", day, month, fullYear)
 	return formattedDate
 }
@@ -198,4 +171,16 @@ func findClosestSex(line string, index int) int {
 		i++
 		j--
 	}
+}
+
+func getCNIE(text string) string {
+	starting := 13
+	for i := starting; i < len(text); i++ {
+		if !unicode.IsDigit(rune(text[i])) && text[i] != '<' {
+			cne := strings.ReplaceAll(text[i:], "<", " ")
+			cne = strings.TrimSpace(cne)
+			return cne
+		}
+	}
+	return ""
 }

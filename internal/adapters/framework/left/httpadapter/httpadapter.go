@@ -88,6 +88,57 @@ func (httpa Adapter) HandleGetPassportData(w http.ResponseWriter, r *http.Reques
 }
 
 func (httpa Adapter) HandleGetIDCard(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := r.ParseMultipartForm(10 << 20) // 10 MB max
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	if !checkImage(handler.Filename) {
+		http.Error(w, "Error the file is not an image", http.StatusBadRequest)
+		return
+	}
+
+	// extract extension
+
+	outputFilePath := fmt.Sprintf("uploads/%d%s", time.Now().UnixNano(), extractExtension(handler.Filename))
+	dst, err := os.Create(outputFilePath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// parse citizen
+
+	person, err := httpa.apia.GetIDCardData(outputFilePath)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode(person)
 }
 
 func (httpa Adapter) Run(postString string) {

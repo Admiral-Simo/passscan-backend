@@ -6,4 +6,5 @@ import (
 
 type APIPort interface {
 	GetPassportData(filepath string) (*types.MRZData, error)
+	GetIDCardData(filepath string) (*types.MRZData, error)
 }
