@@ -17,14 +17,18 @@ func NewAdapter(ocrscanner ports.OCRScannerPost, database ports.DBPort) *Adapter
 	}
 }
 
-func (apia Adapter) GetPassportData(filepath string) (*types.MRZData, error) {
-	// later make the ParseCitizen take the bounds as an input to get the exact data
-	// if err == nil {
-	// apia.database.CreatePassport(*person)
-	// }
-	return apia.ocrscanner.ParsePassport(filepath)
+func (apia Adapter) GetPassportData(filepath string) (*types.Document, error) {
+	document, err := apia.ocrscanner.ParsePassport(filepath)
+	if err == nil {
+		apia.database.CreateDocument(*document)
+	}
+	return document, err
 }
 
-func (apia Adapter) GetIDCardData(filepath string) (*types.MRZData, error) {
-	return apia.ocrscanner.ParseIDCard(filepath)
+func (apia Adapter) GetIDCardData(filepath string) (*types.Document, error) {
+	document, err := apia.ocrscanner.ParseIDCard(filepath)
+	if err == nil {
+		apia.database.CreateDocument(*document)
+	}
+	return document, err
 }

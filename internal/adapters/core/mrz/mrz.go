@@ -9,8 +9,8 @@ import (
 	"unicode"
 )
 
-// ParseMRZ parses the given MRZ text and returns MRZData and an error if any
-func ParseMRZ(mrzText string) (*types.MRZData, error) {
+// ParseMRZ parses the given MRZ text and returns Document and an error if any
+func ParseMRZ(mrzText string) (*types.Document, error) {
 	lines := strings.Split(mrzText, "\n")
 
 	// Check number of lines and handle different MRZ formats (TD1, TD2, TD3)
@@ -20,18 +20,18 @@ func ParseMRZ(mrzText string) (*types.MRZData, error) {
 
 	switch {
 	case len(lines) < 2:
-		return &types.MRZData{}, errors.New("Invalid MRZ data: less than 2 lines")
+		return &types.Document{}, errors.New("Invalid MRZ data: less than 2 lines")
 	case len(lines) == 2:
 		return parsePassport(lines[0], lines[1])
 	case len(lines) == 3:
 		return parseIdCard(lines[0], lines[1], lines[2])
 	default:
-		return &types.MRZData{}, errors.New("Unknown MRZ format")
+		return &types.Document{}, errors.New("Unknown MRZ format")
 	}
 }
 
 // Helper function to parse TD3 format
-func parsePassport(line1, line2 string) (*types.MRZData, error) {
+func parsePassport(line1, line2 string) (*types.Document, error) {
 	// Example fields for TD3 format
 	documentType := myTrim(line1[0:2])
 	countryCode := myTrim(line1[2:5])
@@ -48,8 +48,8 @@ func parsePassport(line1, line2 string) (*types.MRZData, error) {
 	// dates
 	names = strings.ReplaceAll(names, "<", " ")
 
-	// Create MRZData struct
-	mrzData := types.MRZData{
+	// Create Document struct
+	mrzData := types.Document{
 		DocumentType:   documentType,
 		CountryCode:    countryCode,
 		FirstName:      firstName,
@@ -64,7 +64,7 @@ func parsePassport(line1, line2 string) (*types.MRZData, error) {
 	return &mrzData, nil
 }
 
-func parseIdCard(line1, line2, line3 string) (*types.MRZData, error) {
+func parseIdCard(line1, line2, line3 string) (*types.Document, error) {
 	documentType := myTrim(line1[0:2])
 	countryCode := myTrim(line1[2:5])
 	lastName, firstName := getNames(line3)
@@ -76,7 +76,7 @@ func parseIdCard(line1, line2, line3 string) (*types.MRZData, error) {
 		birthDate = stringifyDate(line2[sexIndex-7:sexIndex-1], "birth")
 		expireDate = stringifyDate(line2[sexIndex+1:sexIndex+7], "expire")
 	}
-	return &types.MRZData{
+	return &types.Document{
 		DocumentType:   documentType,
 		CountryCode:    countryCode,
 		FirstName:      firstName,

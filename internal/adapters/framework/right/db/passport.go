@@ -4,25 +4,25 @@ import (
 	"passport_card_analyser/types"
 )
 
-func (dba *Adapter) CreatePassport(person types.MRZData) error {
-	err := dba.db.Create(&person).Error
+func (dba *Adapter) CreateDocument(document types.Document) error {
+	err := dba.db.Create(&document).Error
 	return err
 }
 
-func (dba *Adapter) GetPassports() ([]*types.MRZData, error) {
-	var persons []*types.MRZData
-	err := dba.db.Find(&persons).Error
+func (dba *Adapter) GetDocuments() ([]*types.Document, error) {
+	var documents []*types.Document
+	err := dba.db.Find(&documents).Error
 	if err != nil {
 		return nil, err
 	}
-	return persons, nil
+	return documents, nil
 }
 
-func (dba *Adapter) GetPassport(cin string) (*types.MRZData, error) {
-	var person types.MRZData
-	err := dba.db.Where("person_cin = ?", cin).First(&person).Error
+func (dba *Adapter) GetDocument(docNumber string) (*types.Document, error) {
+	var document types.Document
+	err := dba.db.Where("document_number = ?", docNumber).First(&document).Error
 	if err != nil {
 		return nil, err
 	}
-	return &person, nil
+	return &document, nil
 }

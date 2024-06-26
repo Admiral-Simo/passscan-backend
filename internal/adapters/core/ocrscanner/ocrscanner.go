@@ -13,7 +13,7 @@ func NewAdapter() *Adapter {
 	return &Adapter{}
 }
 
-func (ocra Adapter) ParsePassport(image string) (*types.MRZData, error) {
+func (ocra Adapter) ParsePassport(image string) (*types.Document, error) {
 	text, err := getContent(image)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (ocra Adapter) ParsePassport(image string) (*types.MRZData, error) {
 	return mrz.ParseMRZ(strings.Join(mrz_text, "\n"))
 }
 
-func (ocra Adapter) ParseIDCard(image string) (*types.MRZData, error) {
+func (ocra Adapter) ParseIDCard(image string) (*types.Document, error) {
 
 	text, err := getContent(image)
 	if err != nil {
@@ -57,7 +57,7 @@ func (ocra Adapter) ParseIDCard(image string) (*types.MRZData, error) {
 	//	}
 	//
 	// lines := strings.Split(text, "\n")
-	// person := &types.MRZData{}
+	// person := &types.Document{}
 	// var dates []time.Time
 	// var names []string
 	//

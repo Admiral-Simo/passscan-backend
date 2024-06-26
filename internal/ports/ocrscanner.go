@@ -3,6 +3,6 @@ package ports
 import "passport_card_analyser/types"
 
 type OCRScannerPost interface {
-	ParsePassport(image string) (*types.MRZData, error)
-	ParseIDCard(image string) (*types.MRZData, error)
+	ParsePassport(image string) (*types.Document, error)
+	ParseIDCard(image string) (*types.Document, error)
 }

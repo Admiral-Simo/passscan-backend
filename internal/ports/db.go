@@ -13,8 +13,8 @@ type dBCleaner interface {
 }
 
 type dBPassport interface {
-	CreatePassport(person types.MRZData) error
-	GetPassports() ([]*types.MRZData, error)
+	CreateDocument(person types.Document) error
+	GetDocuments() ([]*types.Document, error)
 
-	GetPassport(cin string) (*types.MRZData, error)
+	GetDocument(docNumber string) (*types.Document, error)
 }
