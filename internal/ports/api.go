@@ -5,6 +5,5 @@ import (
 )
 
 type APIPort interface {
-	GetPassportData(filepath string) (*types.Document, error)
-	GetIDCardData(filepath string) (*types.Document, error)
+	GetDocumentData(filepath string) (*types.Document, error)
 }

@@ -17,16 +17,8 @@ func NewAdapter(ocrscanner ports.OCRScannerPost, database ports.DBPort) *Adapter
 	}
 }
 
-func (apia Adapter) GetPassportData(filepath string) (*types.Document, error) {
-	document, err := apia.ocrscanner.ParsePassport(filepath)
-	if err == nil {
-		apia.database.CreateDocument(*document)
-	}
-	return document, err
-}
-
-func (apia Adapter) GetIDCardData(filepath string) (*types.Document, error) {
-	document, err := apia.ocrscanner.ParseIDCard(filepath)
+func (apia Adapter) GetDocumentData(filepath string) (*types.Document, error) {
+	document, err := apia.ocrscanner.ParseDocument(filepath)
 	if err == nil {
 		apia.database.CreateDocument(*document)
 	}
