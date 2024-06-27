@@ -61,8 +61,8 @@ func (httpa Adapter) HandleGetDocumentData(w http.ResponseWriter, r *http.Reques
 	// extract extension
 
 	names := strings.Split(handler.Filename, ".")
-	name := names[0]
-	extension := names[1]
+	name := names[0] + "-"
+	extension := "." + names[1]
 
 	unixTiming := time.Now().UnixNano()
 
