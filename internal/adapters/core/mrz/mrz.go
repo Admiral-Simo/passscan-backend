@@ -174,9 +174,9 @@ func findClosestSex(line string, index int) int {
 }
 
 func getCNIE(text string) string {
-	starting := 13
-	for i := starting; i < len(text); i++ {
-		if !unicode.IsDigit(rune(text[i])) && text[i] != '<' {
+	starting := len(text) - 1
+	for i := starting; i >= 0; i-- {
+		if !unicode.IsDigit(rune(text[i])) && text[i] != '<' && text[i] != ' ' {
 			cne := strings.ReplaceAll(text[i:], "<", " ")
 			cne = strings.TrimSpace(cne)
 			return cne
