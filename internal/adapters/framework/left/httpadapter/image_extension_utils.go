@@ -11,11 +11,3 @@ func checkImage(fileStr string) bool {
 	}
 	return false
 }
-
-func extractExtension(fileStr string) string {
-	index := strings.LastIndex(fileStr, ".")
-	if index == -1 {
-		return ""
-	}
-	return fileStr[index:]
-}

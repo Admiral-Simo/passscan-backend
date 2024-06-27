@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"passport_card_analyser/internal/ports"
+	"strings"
 	"time"
 )
 
@@ -59,7 +60,13 @@ func (httpa Adapter) HandleGetDocumentData(w http.ResponseWriter, r *http.Reques
 
 	// extract extension
 
-	outputFilePath := fmt.Sprintf("uploads/%d%s", time.Now().UnixNano(), extractExtension(handler.Filename))
+	names := strings.Split(handler.Filename, ".")
+	name := names[0]
+	extension := names[1]
+
+	unixTiming := time.Now().UnixNano()
+
+	outputFilePath := fmt.Sprintf("uploads/%s%d%s", name, unixTiming, extension)
 	dst, err := os.Create(outputFilePath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -73,7 +80,7 @@ func (httpa Adapter) HandleGetDocumentData(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-    // parse document
+	// parse document
 
 	person, err := httpa.apia.GetDocumentData(outputFilePath)
 
