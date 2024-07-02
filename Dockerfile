@@ -34,7 +34,10 @@ WORKDIR /app
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/main /app/main
 
-# Expose port 8091 to the outside world
+# Eopy the .env file to the container
+COPY .env /app/.env
+
+# pose port 8091 to the outside world
 EXPOSE 8091
 
 # Command to run the executable
