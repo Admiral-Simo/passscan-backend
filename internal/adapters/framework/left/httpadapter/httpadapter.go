@@ -85,7 +85,7 @@ func (httpa Adapter) HandleGetDocumentData(w http.ResponseWriter, r *http.Reques
 	person, err := httpa.apia.GetDocumentData(outputFilePath)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
