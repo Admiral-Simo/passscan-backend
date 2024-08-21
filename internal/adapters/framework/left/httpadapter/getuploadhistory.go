@@ -13,7 +13,7 @@ func (httpa Adapter) HandleGetUploadHistory(w http.ResponseWriter, r *http.Reque
 	}
 
 	const dirPath = "./uploads"
-    urlPrefix := os.Getenv("IP_ADDRESS") + ":" + os.Getenv("PORT") + "/uploads/"
+    urlPrefix := os.Getenv("IP_ADDRESS") + os.Getenv("PORT") + "/uploads/"
 
 	images, err := getFilesByDate(dirPath, urlPrefix)
 	if err != nil {
