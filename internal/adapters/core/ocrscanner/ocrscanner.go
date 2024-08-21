@@ -27,11 +27,12 @@ func (ocra Adapter) ParseDocument(image string) (*types.Document, error) {
 	// get all the long words that contain multiple < signs
 
 	for _, s := range texts {
-		result, err := ocra.extractMRZ(s)
+		result, _ := ocra.extractMRZ(s)
+		doc, err := mrz.ParseMRZ(result)
 		if err != nil {
 			continue
 		}
-		return mrz.ParseMRZ(result)
+		return doc, nil
 	}
 
 	return &types.Document{}, fmt.Errorf("not detected passport or id card.")
