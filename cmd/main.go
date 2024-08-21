@@ -12,6 +12,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func getTessearctTextExtractor() ports.OCRTextExtractor {
+	return ocrscanner.TesseractTextExtractor{}
+}
+
 func main() {
 	err := godotenv.Load()
 	var (
@@ -25,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ocradapter = ocrscanner.NewAdapter()
+	ocradapter = ocrscanner.NewAdapter(getTessearctTextExtractor())
 	apier = api.NewAdapter(ocradapter, store)
 	httpdriver = httpadapter.NewAdapter(apier)
 	httpdriver.Run(portString)

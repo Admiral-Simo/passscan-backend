@@ -18,13 +18,14 @@ RUN go build -o main ./cmd
 # Start a new stage from Ubuntu
 FROM ubuntu:latest
 
-# Install tesseract-ocr and its dependencies
+# Install tesseract-ocr, ImageMagick, and their dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         tesseract-ocr \
         tesseract-ocr-eng \
         libtesseract-dev \
         libleptonica-dev \
+        imagemagick \
         gcc \
         g++
 
@@ -42,4 +43,3 @@ EXPOSE 8091
 
 # Command to run the executable
 CMD ["/app/main"]
-
